@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Text Editor</title>
+
+    <!-- Stylesheets -->
+  
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+      }
+      .btn-group {
+        display: flex;
+        flex-direction: row;
+        background-color: rgb(231, 228, 228);
+        padding: 0.3rem;
+      }
+      textarea { 
+        width: 100%;
+        height: 1200px !important;
+        border: none;
+        outline: none;
+        resize: none;
+        font-size: 20px;
+      }
+      .pull-right {
+        margin-left: auto;
+        justify-content: flex-end;
+      }
+      button {
+        border-radius: 3px;
+        border: none;
+        background-color: #ffffff;
+        font-weight: 600;
+      }
+      .incFont {
+        margin-right: 2px ;
+      }
+    </style>
+    
+  </head>
+
+  <body>
+    <!-- Wrap your entire app inside .window -->
+    <div class="window">
+      <header class="toolbar toolbar-header">
+        <div class="toolbar-actions">
+          <div class="btn-group">
+            <button class="btn btn-default incFont">
+              <span class="icon icon-home" onclick="incFont()">&#128474;</span>
+            </button>
+            <button class="btn btn-default">
+              <span class="icon icon-folder" onclick="decFont()">&#128475;</span>
+            </button>
+            
+      
+          <button class="btn btn-default btn-dropdown pull-right">
+            <span class="icon icon-megaphone" onclick="onSave()">&#xf0c7; save</span>
+          </button>
+        </div>
+      </header>
+      <div class="window-content">
+        <div class="padded-more">
+          <textarea style="width: 100%; height: 100%;" ></textarea>
+        </div>
+      </div>
+    </div>
+    <script>
+      const electron  = require('electron');
+      const {ipcRenderer} = electron;
+      let textarea = document.querySelector('textarea');
+      let fonSize = 20;
+      function incFont(){
+        textarea.style.fontSize=`${++fonSize}px`;
+      }
+      function decFont(){
+        textarea.style.fontSize=`${--fonSize}px`;
+      }
+      function onSave() {
+        let text;
+        text = (textarea.value);
+        
+        console.log(text);
+        ipcRenderer.send('save', text);
+      }
+      ipcRenderer.on('saved', (event, result)=>{
+        if(result === 'success'){
+          console.log(result);
+          textarea.style.backgroundColor = '#b2ff99';
+        }else{
+          console.log('ERror');
+          textarea.style.backgroundColor = '#ff8989';
+        }
+        setTimeout(()=>{
+          textarea.style.backgroundColor = ''
+        }, 200);
+      })
+      ipcRenderer.on('save-clicked', ()=>{
+        onSave();
+      })
+    </script>
+  </body>
+</html>
